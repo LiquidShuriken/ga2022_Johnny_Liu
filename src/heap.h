@@ -21,3 +21,6 @@ void* heap_alloc(heap_t* heap, size_t size, size_t alignment);
 
 // Free memory previously allocated from a heap.
 void heap_free(heap_t* heap, void* address);
+
+//tlsf_walker function with hw1 report formatting
+static void arena_walker(void* ptr, size_t size, int used, void* user);

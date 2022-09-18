@@ -918,6 +918,30 @@ void tlsf_walk_pool(pool_t pool, tlsf_walker walker, void* user)
 	}
 }
 
+void tlsf_walk_arena(pool_t pool, void* stack[], int stack_count, tlsf_walker walker, void* user)
+{
+	tlsf_walker pool_walker = walker ? walker : default_walker;
+	block_header_t* block =
+		offset_to_block(pool, -(int)block_header_overhead);
+
+	while (block && !block_is_last(block))
+	{
+		pool_walker(
+			block_to_ptr(block),
+			block_size(block),
+			!block_is_free(block),
+			user);
+		if (!block_is_free(block))
+		{
+			for (int i = 0; i < stack_count; i++)
+			{
+				printf("[%d] %p\n", i, stack[i]);
+			}
+		}
+		block = block_next(block);
+	}
+}
+
 size_t tlsf_block_size(void* ptr)
 {
 	size_t size = 0;
