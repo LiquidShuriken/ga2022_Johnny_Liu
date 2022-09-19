@@ -12,6 +12,7 @@
 typedef struct arena_t
 {
 	pool_t pool;
+	// new code
 	void* stack[8];
 	int stack_count;
 	struct arena_t* next;
@@ -63,6 +64,7 @@ void* heap_alloc(heap_t* heap, size_t size, size_t alignment)
 		}
 
 		arena->pool = tlsf_add_pool(heap->tlsf, arena + 1, arena_size);
+		// new code
 		arena->stack_count = debug_backtrace(arena->stack, 2);
 
 		arena->next = heap->arena;
@@ -86,6 +88,7 @@ void heap_destroy(heap_t* heap)
 	while (arena)
 	{
 		arena_t* next = arena->next;
+		// new code
 		tlsf_walk_arena(arena->pool, arena->stack, arena->stack_count, (tlsf_walker) arena_walker, NULL);
 		VirtualFree(arena, 0, MEM_RELEASE);
 		arena = next;
@@ -94,6 +97,7 @@ void heap_destroy(heap_t* heap)
 	VirtualFree(heap, 0, MEM_RELEASE);
 }
 
+// new code
 static void arena_walker(void* ptr, size_t size, int used, void* user)
 {
 	(void)user;

@@ -918,6 +918,7 @@ void tlsf_walk_pool(pool_t pool, tlsf_walker walker, void* user)
 	}
 }
 
+// new function
 void tlsf_walk_arena(pool_t pool, void* stack[], int stack_count, tlsf_walker walker, void* user)
 {
 	tlsf_walker pool_walker = walker ? walker : default_walker;
