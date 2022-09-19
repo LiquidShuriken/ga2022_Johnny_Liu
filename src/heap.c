@@ -13,7 +13,7 @@ typedef struct arena_t
 {
 	pool_t pool;
 	// new code
-	void* stack[8];
+	void* stack[100];
 	int stack_count;
 	struct arena_t* next;
 } arena_t;
@@ -65,7 +65,7 @@ void* heap_alloc(heap_t* heap, size_t size, size_t alignment)
 
 		arena->pool = tlsf_add_pool(heap->tlsf, arena + 1, arena_size);
 		// new code
-		arena->stack_count = debug_backtrace(arena->stack, 2);
+		arena->stack_count = debug_backtrace(arena->stack, 3);
 
 		arena->next = heap->arena;
 		heap->arena = arena;

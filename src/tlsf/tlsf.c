@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <windows.h>
+#include <DbgHelp.h>
 
 #include "tlsf.h"
 
@@ -919,11 +921,16 @@ void tlsf_walk_pool(pool_t pool, tlsf_walker walker, void* user)
 }
 
 // new function
-void tlsf_walk_arena(pool_t pool, void* stack[], int stack_count, tlsf_walker walker, void* user)
+void tlsf_walk_arena(pool_t pool, void* stack[], int frames, tlsf_walker walker, void* user)
 {
 	tlsf_walker pool_walker = walker ? walker : default_walker;
 	block_header_t* block =
 		offset_to_block(pool, -(int)block_header_overhead);
+
+	HANDLE hProcess = GetCurrentProcess();
+	
+	SymInitialize(hProcess, NULL, TRUE);
+	SymSetOptions(SYMOPT_LOAD_LINES);
 
 	while (block && !block_is_last(block))
 	{
@@ -934,9 +941,28 @@ void tlsf_walk_arena(pool_t pool, void* stack[], int stack_count, tlsf_walker wa
 			user);
 		if (!block_is_free(block))
 		{
-			for (int i = 0; i < stack_count; i++)
+			for (int i = 0; i < frames; i++)
 			{
-				printf("[%d] %p\n", i, stack[i]);
+				IMAGEHLP_LINE64* line = (IMAGEHLP_LINE64*)calloc(1, sizeof(IMAGEHLP_LINE64) + 256 * sizeof(TCHAR));
+				SYMBOL_INFO* symbol = (SYMBOL_INFO*)calloc(1, sizeof(SYMBOL_INFO) + 256 * sizeof(TCHAR));
+				if (line && line != 0 && symbol && symbol != 0)
+				{
+					DWORD dwDisplacement;
+					DWORD64 displacement;
+					line->SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+					symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+					symbol->MaxNameLen = 255;
+					SymFromAddr(hProcess, (DWORD64)(stack[i]), &displacement, symbol);
+					SymGetLineFromAddr64(hProcess, (DWORD64)(stack[i]), &dwDisplacement, line);
+					
+					printf("[%d] line %i: %s(%p) in %s\n", i, line->LineNumber, (char*)symbol->Name, stack[i], (char*)line->FileName);
+				}
+				else
+				{
+					printf("line initialization failed\n");
+					return;
+				}
+				free(line);
 			}
 		}
 		block = block_next(block);
