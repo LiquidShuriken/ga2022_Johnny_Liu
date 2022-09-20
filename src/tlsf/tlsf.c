@@ -963,6 +963,7 @@ void tlsf_walk_arena(pool_t pool, void* stack[], int frames, tlsf_walker walker,
 					return;
 				}
 				free(line);
+				free(symbol);
 			}
 		}
 		block = block_next(block);
