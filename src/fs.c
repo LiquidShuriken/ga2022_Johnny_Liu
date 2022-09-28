@@ -4,6 +4,7 @@
 #include "heap.h"
 #include "queue.h"
 #include "thread.h"
+#include "lz4/lz4.h"
 
 #include <string.h>
 
@@ -87,6 +88,9 @@ fs_work_t* fs_write(fs_t* fs, const char* path, const void* buffer, size_t size,
 	if (use_compression)
 	{
 		// HOMEWORK 2: Queue file write work on compression queue!
+		char compressed_buffer[512];
+		work->size = LZ4_compress_default((const char*)buffer, compressed_buffer, (int)strlen(buffer), sizeof(compressed_buffer));
+		work->buffer = (void*)compressed_buffer;
 	}
 	else
 	{
@@ -182,6 +186,7 @@ static void file_read(fs_work_t* work)
 	if (work->use_compression)
 	{
 		// HOMEWORK 2: Queue file read work on decompression queue!
+
 	}
 	else
 	{
