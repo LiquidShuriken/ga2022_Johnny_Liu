@@ -6,6 +6,7 @@
 #include "thread.h"
 #include "lz4/lz4.h"
 
+#include <stdio.h>
 #include <string.h>
 
 #define WIN32_LEAN_AND_MEAN
@@ -15,8 +16,17 @@ typedef struct fs_t
 {
 	heap_t* heap;
 	queue_t* file_queue;
+	queue_t* compressed_queue;
 	thread_t* file_thread;
+	thread_t* compressed_thread;
 } fs_t;
+
+typedef struct thread_info_t
+{
+	heap_t* heap;
+	void* fs;
+	bool compression_enabled;
+} thread_info_t;
 
 typedef enum fs_work_op_t
 {
@@ -37,22 +47,39 @@ typedef struct fs_work_t
 	int result;
 } fs_work_t;
 
-static int file_thread_func(void* user);
+static int file_thread_func(thread_info_t* user);
 
 fs_t* fs_create(heap_t* heap, int queue_capacity)
 {
 	fs_t* fs = heap_alloc(heap, sizeof(fs_t), 8);
 	fs->heap = heap;
 	fs->file_queue = queue_create(heap, queue_capacity);
-	fs->file_thread = thread_create(file_thread_func, fs);
+	fs->compressed_queue = queue_create(heap, queue_capacity);
+	thread_info_t* info_non_compressed = heap_alloc(heap, sizeof(thread_info_t), 8);
+	info_non_compressed->heap = heap;
+	info_non_compressed->fs = fs;
+	info_non_compressed->compression_enabled = false;
+	thread_info_t* info_compressed = heap_alloc(heap, sizeof(thread_info_t), 8);
+	info_compressed->heap = heap;
+	info_compressed->fs = fs;
+	info_compressed->compression_enabled = true;
+	fs->file_thread = thread_create(file_thread_func, info_non_compressed);
+	fs->compressed_thread = thread_create(file_thread_func, info_compressed);
+	/*info_non_compressed->fs = NULL;
+	info_compressed->fs = NULL;
+	heap_free(heap, info_non_compressed);
+	heap_free(heap, info_compressed);*/
 	return fs;
 }
 
 void fs_destroy(fs_t* fs)
 {
 	queue_push(fs->file_queue, NULL);
+	queue_push(fs->compressed_queue, NULL);
 	thread_destroy(fs->file_thread);
+	thread_destroy(fs->compressed_thread);
 	queue_destroy(fs->file_queue);
+	queue_destroy(fs->compressed_queue);
 	heap_free(fs->heap, fs);
 }
 
@@ -89,8 +116,10 @@ fs_work_t* fs_write(fs_t* fs, const char* path, const void* buffer, size_t size,
 	{
 		// HOMEWORK 2: Queue file write work on compression queue!
 		char compressed_buffer[512];
-		work->size = LZ4_compress_default((const char*)buffer, compressed_buffer, (int)strlen(buffer), sizeof(compressed_buffer));
+		int compressed_size = LZ4_compress_default((const char*)buffer, compressed_buffer, (int)strlen(buffer), sizeof(compressed_buffer));
+		compressed_buffer[compressed_size] = 0;
 		work->buffer = (void*)compressed_buffer;
+		queue_push(fs->compressed_queue, work);
 	}
 	else
 	{
@@ -186,7 +215,11 @@ static void file_read(fs_work_t* work)
 	if (work->use_compression)
 	{
 		// HOMEWORK 2: Queue file read work on decompression queue!
-
+		char decompress_buffer[1000000];
+		LZ4_decompress_safe(work->buffer, decompress_buffer, (int)work->size, sizeof(decompress_buffer));
+		decompress_buffer[work->size] = 0;
+		work->buffer = (void*)decompress_buffer;
+		event_signal(work->done);
 	}
 	else
 	{
@@ -226,14 +259,26 @@ static void file_write(fs_work_t* work)
 	event_signal(work->done);
 }
 
-static int file_thread_func(void* user)
+static int file_thread_func(thread_info_t* user)
 {
-	fs_t* fs = user;
+	heap_t* heap = user->heap;
+	fs_t* fs = user->fs;
+	bool compressed = user->compression_enabled;
 	while (true)
 	{
-		fs_work_t* work = queue_pop(fs->file_queue);
+		fs_work_t* work;
+		if (compressed)
+		{
+			work = queue_pop(fs->compressed_queue);
+		}
+		else
+		{
+			work = queue_pop(fs->file_queue);
+		}
 		if (work == NULL)
 		{
+			user->fs = NULL;
+			heap_free(heap, user);
 			break;
 		}
 		
