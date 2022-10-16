@@ -919,7 +919,7 @@ void tlsf_walk_pool(pool_t pool, tlsf_walker walker, void* user)
 		block = block_next(block);
 	}
 }
-
+ 
 // new function
 void tlsf_walk_arena(pool_t pool, void* stack[], int frames, tlsf_walker walker, void* user)
 {

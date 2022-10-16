@@ -96,7 +96,7 @@ fs_work_t* fs_read(fs_t* fs, const char* path, heap_t* heap, bool null_terminate
 	work->null_terminate = null_terminate;
 	work->use_compression = use_compression;
 	if (work->use_compression)
-	{
+	{ 
 		queue_push(fs->compressed_queue, work);
 	}
 	else

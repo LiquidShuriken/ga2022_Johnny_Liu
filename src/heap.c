@@ -93,7 +93,7 @@ void heap_free(heap_t* heap, void* address)
 void heap_destroy(heap_t* heap)
 {
 	tlsf_destroy(heap->tlsf);
-
+	 
 	arena_t* arena = heap->arena;
 	while (arena)
 	{
