@@ -11,7 +11,7 @@ typedef struct fs_t fs_t;
 typedef struct fs_work_t fs_work_t;
 
 typedef struct heap_t heap_t;
-
+ 
 // Create a new file system.
 // Provided heap will be used to allocate space for queue and work buffers.
 // Provided queue size defines number of in-flight file operations.
