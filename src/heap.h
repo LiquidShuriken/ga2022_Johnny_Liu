@@ -1,4 +1,5 @@
-#pragma once 
+#pragma once
+
 #include <stdlib.h>
 
 // Heap Memory Manager

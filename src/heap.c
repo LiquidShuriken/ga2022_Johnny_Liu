@@ -13,7 +13,7 @@
 typedef struct arena_t
 {
 	pool_t pool;
-	// new code 
+	// new code
 	void* stack[100];
 	int stack_count;
 	struct arena_t* next;

@@ -253,7 +253,7 @@ static void file_write(fs_work_t* work)
 		event_signal(work->done);
 		return;
 	}
-	
+
 	HANDLE handle = CreateFile(wide_path, GENERIC_WRITE, FILE_SHARE_WRITE, NULL,
 		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (handle == INVALID_HANDLE_VALUE)

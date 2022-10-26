@@ -12,7 +12,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-
 typedef struct event_info_t
 {
 	heap_t* heap;

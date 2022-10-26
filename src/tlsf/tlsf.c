@@ -58,6 +58,7 @@ tlsf_decl int tlsf_ffs(unsigned int word)
 	const int bit = 32 - __builtin_clz(reverse);
 	return bit - 1;
 }
+
 #else
 
 tlsf_decl int tlsf_ffs(unsigned int word)

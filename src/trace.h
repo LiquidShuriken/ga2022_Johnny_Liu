@@ -32,5 +32,5 @@ event_info_t* event_info_create(heap_t* heap, const char* name);
 void event_info_destroy(event_info_t* event);
 
 void event_time_update(event_info_t* event, unsigned int tms);
- 
+
 void get_event_info(event_info_t* event, char ph, unsigned int tms, char* info);
