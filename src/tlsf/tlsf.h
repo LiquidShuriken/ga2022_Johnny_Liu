@@ -11,7 +11,7 @@
 **
 ** This implementation was written to the specification
 ** of the document, therefore no GPL restrictions apply.
-**  
+** 
 ** Copyright (c) 2006-2016, Matthew Conte
 ** All rights reserved.
 ** 
