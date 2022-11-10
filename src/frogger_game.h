@@ -1,6 +1,6 @@
 #pragma once
 
-// frogger Test Game
+// Frogger Test Game
 // Brings together major engine systems to make a very frogger "game."
 
 typedef struct frogger_game_t frogger_game_t;

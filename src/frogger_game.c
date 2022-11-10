@@ -171,15 +171,6 @@ static void load_resources(frogger_game_t* game)
 		.fragment_shader_size = fs_work_get_size(game->fragment_shader_work),
 		.uniform_buffer_count = 1,
 	};
-	/*game->vertex_shader_work_R = fs_read(game->fs, "shaders/triangleR.vert.spv", game->heap, false, false);
-	game->traffic_shader = (gpu_shader_info_t)
-	{
-		.vertex_shader_data = fs_work_get_buffer(game->vertex_shader_work_R),
-		.vertex_shader_size = fs_work_get_size(game->vertex_shader_work_R),
-		.fragment_shader_data = fs_work_get_buffer(game->fragment_shader_work),
-		.fragment_shader_size = fs_work_get_size(game->fragment_shader_work),
-		.uniform_buffer_count = 1,
-	};*/
 
 	static vec3f_t cube_verts[] =
 	{
