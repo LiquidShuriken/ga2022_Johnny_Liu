@@ -291,8 +291,6 @@ static int file_thread_func(thread_info_t* user)
 		}
 		if (work == NULL)
 		{
-			user->fs = NULL;
-			heap_free(heap, user);
 			break;
 		}
 		
@@ -306,5 +304,7 @@ static int file_thread_func(thread_info_t* user)
 			break;
 		}
 	}
+	user->fs = NULL;
+	heap_free(heap, user);
 	return 0;
 }
