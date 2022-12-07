@@ -1,0 +1,24 @@
+Title: Building a Zork-like adventure game
+
+Name/email: Johnny Liu, liuy62@rpi.edu
+
+Summary: The engine supports entity building. Add a I/O textbox component to the entity system so we can make Zork.
+
+High-level Description: We will implement a text input & output handling system into our current entity system, using Dear ImGui for text widgets display and input box. After integrating Dear ImGui, we need to create our own scripting language for room building, objects and interactions. With all of those features implemented, build a short demo.
+
+
+Tasks:
+
+    Integrate ImGui for C and Vulkan.
+
+    Build a console-like interface that takes text inputs and output text messages as an entity. Build a type of component that calls ImGui functions.
+
+    Determine the format in which game information such as room content and interaction keywords are stored (most likely in a json file). Write a parser for reading the level info and build the game world as a collection of entities.
+
+    Build the player command parser and the sample level.
+
+Challenges:
+
+    The integration itself might be difficult considering ImGui is written in C++. I hope the C wrapper and Vulkan porting provided are easy to implement. 
+
+    Interpreting player's command might include some branching logic tree. For example, if the player inputs "look at", the game can then follow up with an other question "What do you want to look at?" This is optional since the game does not need this feature to function.
