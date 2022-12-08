@@ -1,0 +1,2 @@
+1 0 0 0 2 This room is completely featureless. In fact, it's not a room at all.
+2 0 0 1 0 You've found your mom.

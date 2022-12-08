@@ -5,7 +5,7 @@
 #include "fs.h"
 #include "heap.h"
 #include "render.h"
-#include "frogger_game.h"
+#include "zork.h"
 #include "timer.h"
 #include "wm.h"
 
@@ -370,7 +370,9 @@ int main(int argc, char* argv[])
     debug_set_print_mask(k_print_info | k_print_warning | k_print_error);
     debug_install_exception_handler();
     heap_t* heap = heap_create(2 * 1024 * 1024);
-    fs_t* fs = fs_create(heap, 8);
+
+    zork_game_t* game = zork_game_create(heap, NULL, "zork/room_info.txt");
+
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         SDL_Log("failed to init: %s", SDL_GetError());
@@ -524,6 +526,8 @@ int main(int argc, char* argv[])
         ImGui_ImplSDL2_NewFrame();
         igNewFrame();
 
+        igShowDemoWindow(&showDemoWindow);
+
         // show a simple window that we created ourselves.
         {
             static float f = 0.0f;
@@ -539,6 +543,26 @@ int main(int argc, char* argv[])
                 {
                     char hello[] = "Well, hello there!";
                     strncpy_s(msg, strlen(hello) + 1, hello, buf_size);
+                }
+                else if (strncmp(input, "look around", strlen(input)) == 0)
+                {
+                    look_around(game, &msg);
+                }
+                else if (strncmp(input, "move north", strlen(input)) == 0)
+                {
+                    move_player(game, 0, &msg);
+                }
+                else if (strncmp(input, "move south", strlen(input)) == 0)
+                {
+                    move_player(game, 1, &msg);
+                }
+                else if (strncmp(input, "move east", strlen(input)) == 0)
+                {
+                    move_player(game, 2, &msg);
+                }
+                else if (strncmp(input, "move west", strlen(input)) == 0)
+                {
+                    move_player(game, 3, &msg);
                 }
                 else
                 {
@@ -578,9 +602,9 @@ int main(int argc, char* argv[])
     SDL_DestroyWindow(window);
     SDL_Quit();
 
+    zork_game_destroy(game);
     heap_free(heap, msg);
     heap_free(heap, input);
-    fs_destroy(fs);
     heap_destroy(heap);
 
     return 0;
